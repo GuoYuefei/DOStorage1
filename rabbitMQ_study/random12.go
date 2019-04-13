@@ -1,6 +1,7 @@
 package rabbitMQ_study
 
 import (
+	"github.com/astaxie/beego/utils"
 	"log"
 	"time"
 )
@@ -44,3 +45,9 @@ func FailOnError(err error, msg string) {
 		log.Fatalf("%s: %s", msg, err)
 	}
 }
+
+func GenerateMess(length int) []byte {
+	return utils.RandomCreateBytes(length, []byte("abcdefghijkmlnopqrstuvwxyz")...)
+
+}
+
