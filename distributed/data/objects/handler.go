@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"storage/distributed/doslog"
 	"strings"
 )
 
@@ -26,7 +27,7 @@ func get(w http.ResponseWriter, r *http.Request) {
 	f, e := os.Open(os.Getenv(storage_root)+"/objects/"+strings.Split(r.URL.EscapedPath(), "/")[2])
 
 	if e != nil {
-		log.Println(e)
+		doslog.FailOnError(e, "not found")
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}

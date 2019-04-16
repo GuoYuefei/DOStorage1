@@ -13,7 +13,7 @@ import (
 func Put(w http.ResponseWriter, r *http.Request) {
 	object := strings.Split(r.URL.EscapedPath(), "/")[2] // todo 2
 	c, e := storeObject(r.Body, object)
-	doslog.FailOnError(e, e.Error())
+	doslog.FailOnError(e, "Fail to storeObject")
 	w.WriteHeader(c)
 
 }
@@ -21,12 +21,14 @@ func Put(w http.ResponseWriter, r *http.Request) {
 func storeObject(r io.Reader, object string) (int, error) {
 	stream, e := putStream(object)
 	if e != nil {
+		doslog.FailOnError(e, e.Error())
 		return http.StatusServiceUnavailable, e
 	}
 
 	io.Copy(stream, r)
 	e = stream.Close()
 	if e != nil {
+		doslog.FailOnError(e, "Fail ot close the stream")
 		return http.StatusInternalServerError, e
 	}
 	return http.StatusOK, nil

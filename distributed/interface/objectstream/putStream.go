@@ -16,7 +16,8 @@ func NewPutStream(server, object string) *PutStream {
 	c := make(chan error)
 
 	go func() {
-		request, _ := http.NewRequest("PUT", "http://"+server+"/bejcets/"+object, reader)
+		request, _ := http.NewRequest("PUT", "http://"+server+"/objects/"+object, reader)
+		fmt.Println("server: "+server)
 		client := http.Client{}
 
 		r, e := client.Do(request)
