@@ -1,9 +1,9 @@
 package main
 
 import (
+	"github.com/GuoYuefei/DOStorage1/rabbitMQ_study"
 	"github.com/streadway/amqp"
 	"log"
-	"storage/rabbitMQ_study"
 )
 
 var r123 chan int = rabbitMQ_study.RandomInt123(2000,1800, 1, 2,4)

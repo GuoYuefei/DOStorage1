@@ -1,10 +1,10 @@
 package main
 
 import (
+	"github.com/GuoYuefei/DOStorage1/rabbitMQ_study"
 	"github.com/streadway/amqp"
 	"log"
 	"os"
-	"storage/rabbitMQ_study"
 )
 
 func main() {

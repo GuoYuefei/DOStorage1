@@ -2,8 +2,8 @@ package rabbitmq
 
 import (
 	"encoding/json"
+	"github.com/GuoYuefei/DOStorage1/distributed/doslog"
 	"github.com/streadway/amqp"
-	"storage/distributed/doslog"
 )
 
 type RabbitMQ struct {

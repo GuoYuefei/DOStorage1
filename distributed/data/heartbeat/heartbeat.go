@@ -1,8 +1,8 @@
 package heartbeat
 
 import (
+	"github.com/GuoYuefei/DOStorage1/distributed/rabbitmq"
 	"os"
-	"storage/distributed/rabbitmq"
 	"time"
 )
 

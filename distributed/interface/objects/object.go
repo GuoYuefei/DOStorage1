@@ -2,11 +2,11 @@ package objects
 
 import (
 	"fmt"
+	"github.com/GuoYuefei/DOStorage1/distributed/doslog"
+	"github.com/GuoYuefei/DOStorage1/distributed/interface/heartbeat"
+	"github.com/GuoYuefei/DOStorage1/distributed/interface/objectstream"
 	"io"
 	"net/http"
-	"storage/distributed/doslog"
-	"storage/distributed/interface/heartbeat"
-	"storage/distributed/interface/objectstream"
 	"strings"
 )
 

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"./objects"
+	"github.com/GuoYuefei/DOStorage1/singlemachine/objects"
 	"log"
 	"net/http"
 	"os"

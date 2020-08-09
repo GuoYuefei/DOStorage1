@@ -1,12 +1,12 @@
 package main
 
 import (
+	"github.com/GuoYuefei/DOStorage1/distributed/doslog"
+	"github.com/GuoYuefei/DOStorage1/distributed/interface/heartbeat"
+	"github.com/GuoYuefei/DOStorage1/distributed/interface/locate"
+	"github.com/GuoYuefei/DOStorage1/distributed/interface/objects"
 	"net/http"
 	"os"
-	"storage/distributed/doslog"
-	"storage/distributed/interface/heartbeat"
-	"storage/distributed/interface/locate"
-	"storage/distributed/interface/objects"
 )
 
 // 接口服务程序主函数

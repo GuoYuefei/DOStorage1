@@ -1,12 +1,12 @@
 package main
 
 import (
+	"github.com/GuoYuefei/DOStorage1/distributed/data/heartbeat"
+	"github.com/GuoYuefei/DOStorage1/distributed/data/locate"
+	"github.com/GuoYuefei/DOStorage1/distributed/data/objects"
+	"github.com/GuoYuefei/DOStorage1/distributed/doslog"
 	"net/http"
 	"os"
-	"storage/distributed/data/heartbeat"
-	"storage/distributed/data/locate"
-	"storage/distributed/data/objects"
-	"storage/distributed/doslog"
 )
 
 func main() {

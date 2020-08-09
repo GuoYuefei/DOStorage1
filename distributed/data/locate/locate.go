@@ -1,9 +1,9 @@
 package locate
 
 import (
+	"github.com/GuoYuefei/DOStorage1/distributed/doslog"
+	"github.com/GuoYuefei/DOStorage1/distributed/rabbitmq"
 	"os"
-	"storage/distributed/doslog"
-	"storage/distributed/rabbitmq"
 	"strconv"
 )
 

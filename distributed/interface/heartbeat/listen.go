@@ -1,10 +1,10 @@
 package heartbeat
 
 import (
+	"github.com/GuoYuefei/DOStorage1/distributed/doslog"
+	"github.com/GuoYuefei/DOStorage1/distributed/rabbitmq"
 	"math/rand"
 	"os"
-	"storage/distributed/doslog"
-	"storage/distributed/rabbitmq"
 	"strconv"
 	"sync"
 	"time"

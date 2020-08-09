@@ -1,9 +1,9 @@
 package main
 
 import (
+	"github.com/GuoYuefei/DOStorage1/rabbitMQ_study"
 	"github.com/streadway/amqp"
 	"log"
-	"storage/rabbitMQ_study"
 	"time"
 )
 

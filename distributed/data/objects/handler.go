@@ -1,11 +1,11 @@
 package objects
 
 import (
+	"github.com/GuoYuefei/DOStorage1/distributed/doslog"
 	"io"
 	"log"
 	"net/http"
 	"os"
-	"storage/distributed/doslog"
 	"strings"
 )
 

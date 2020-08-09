@@ -3,9 +3,9 @@ package locate
 
 import (
 	"encoding/json"
+	"github.com/GuoYuefei/DOStorage1/distributed/rabbitmq"
 	"net/http"
 	"os"
-	"storage/distributed/rabbitmq"
 	"strconv"
 	"strings"
 	"time"
