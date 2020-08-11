@@ -59,11 +59,11 @@ func put(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
-	c, e := storeObject(r.Body, url.PathEscape(hash))
+	size := util.GetSizeFromHeader(r.Header)
+	c, e := storeObject(r.Body, url.PathEscape(hash), size)
 	utils.FailOnError(e, "Fail to storeObject")
 	if e != nil {
-		log.Println(e)
+		//log.Println(e)
 		w.WriteHeader(c)
 		return
 	}
@@ -74,7 +74,7 @@ func put(w http.ResponseWriter, r *http.Request) {
 	}
 
 	name := strings.Split(r.URL.EscapedPath(), "/")[2] // todo 2
-	size := util.GetSizeFromHeader(r.Header)
+
 	e = es.AddVersion(name, hash, size)
 	if e != nil {
 		log.Println(e)
@@ -128,27 +128,34 @@ func getStream(object string) (io.Reader, error) {
 	return objectstream.NewGetStream(server, object)
 }
 
-func storeObject(r io.Reader, object string) (int, error) {
-	stream, e := putStream(object)
-	if e != nil {
-		utils.FailOnError(e, e.Error())
-		return http.StatusServiceUnavailable, e
+func storeObject(r io.Reader, hash string, size int64) (int, error) {
+	if locate.Exist(url.PathEscape(hash)) {
+		// 存在就直接返回 ok
+		return http.StatusOK, nil
 	}
 
-	io.Copy(stream, r)
-	e = stream.Close()
+	// todo
+	stream, e := putStream(url.PathEscape(hash), size)
 	if e != nil {
-		utils.FailOnError(e, "Fail ot close the stream")
 		return http.StatusInternalServerError, e
 	}
+	reader := io.TeeReader(r, stream)			// TeeReader 可以实现在读取的同事，将内容写入stream
+	d := utils.CalculateHash(reader)
+	if d != hash {
+		// 验证hash值不通过
+		stream.Commit(false)
+		return http.StatusBadRequest, fmt.Errorf("object hash mismatch, calculated=%s, requestd=%s", d, hash)
+	}
+
+	stream.Commit(true)
 	return http.StatusOK, nil
 }
 
-func putStream(object string) (*objectstream.PutStream, error) {
+func putStream(hash string, size int64) (*objectstream.TempPutStream, error) {
 	server := heartbeat.ChooseRandomDataServer()
 	if server == "" {
 		return nil, fmt.Errorf("cannot find any dataServer")
 	}
 
-	return objectstream.NewPutStream(server, object), nil
+	return objectstream.NewTempPutStream(server, hash, size)
 }

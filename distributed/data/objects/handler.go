@@ -2,49 +2,65 @@ package objects
 
 import (
 	"github.com/GuoYuefei/DOStorage1/distributed/config"
+	"github.com/GuoYuefei/DOStorage1/distributed/data/locate"
 	"github.com/GuoYuefei/DOStorage1/distributed/utils"
 	"io"
-	"log"
 	"net/http"
+	"net/url"
 	"os"
+	"path"
 	"strings"
 )
 
-func put(w http.ResponseWriter, r *http.Request) {
-	f, e := os.Create(config.ServerData.STORAGE_ROOT+"/objects/"+strings.Split(r.URL.EscapedPath(),"/")[2])
-
-	if e != nil {
-		log.Println(e)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	defer f.Close()
-	io.Copy(f, r.Body)
-}
-
-func get(w http.ResponseWriter, r *http.Request) {
-	f, e := os.Open(config.ServerData.STORAGE_ROOT+"/objects/"+strings.Split(r.URL.EscapedPath(), "/")[2])
-
-	if e != nil {
-		utils.FailOnError(e, "not found")
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-	defer f.Close()
-	io.Copy(w, f)
-}
-
 func Handler(w http.ResponseWriter, r *http.Request) {
 	m := r.Method
-	if m == http.MethodPut {
-		put(w, r)
-		return
-	}
-
+	utils.Log.Println(utils.Debug, "objects Information received is ", m)
 	if m == http.MethodGet {
 		get(w, r)
 		return
 	}
 
 	w.WriteHeader(http.StatusMethodNotAllowed)
+}
+
+func get(w http.ResponseWriter, r *http.Request) {
+	file := getFile(strings.Split(r.URL.EscapedPath(),"/")[2])
+	if file == "" {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	err := sendFile(w, file)
+	if err != nil {
+		utils.Log.Println(utils.Err, err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}
+
+func getFile(hash string) string {
+	file := path.Join(config.ServerData.STORAGE_ROOT, "objects", hash)
+	f, e := os.Open(file)
+	if e != nil {
+		return ""
+	}
+	d := url.PathEscape(utils.CalculateHash(f))
+	f.Close()
+	if d != hash {
+		// 验证文件不成功
+		utils.Log.Printf(utils.Err, "object hash mismatch, remove", file)
+		locate.Del(hash)
+		os.Remove(file)
+		return ""
+	}
+	return file
+}
+
+func sendFile(writer io.Writer, file string) error {
+	f, e := os.Open(file)
+	if e != nil {
+		return e
+	}
+	defer f.Close()
+	io.Copy(writer, f)
+	return nil
 }

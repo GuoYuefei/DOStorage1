@@ -10,9 +10,10 @@ import (
 )
 
 func main() {
+	locate.CollectObjects() 			// 启动时先收集本地的对象，存入内存
 	go heartbeat.StartHeartbeat()
 	go locate.StartLocate()
 	http.HandleFunc("/objects/", objects.Handler)
-	utils.FailOnError(http.ListenAndServe(config.ServerData.LISTEN_ADDRESS, nil),
+	utils.PanicOnError(http.ListenAndServe(config.ServerData.LISTEN_ADDRESS, nil),
 		"Fail to open a data server")
 }
