@@ -1,10 +1,10 @@
 package heartbeat
 
 import (
-	"github.com/GuoYuefei/DOStorage1/distributed/doslog"
+	"github.com/GuoYuefei/DOStorage1/distributed/config"
 	"github.com/GuoYuefei/DOStorage1/distributed/rabbitmq"
+	"github.com/GuoYuefei/DOStorage1/distributed/utils"
 	"math/rand"
-	"os"
 	"strconv"
 	"sync"
 	"time"
@@ -14,7 +14,7 @@ var dataServers = make(map[string] time.Time)
 var mutex sync.Mutex
 
 func ListenHeartbeat() {
-	q := rabbitmq.New(os.Getenv("RABBITMQ_SERVER"))
+	q := rabbitmq.New(config.Pub.RABBITMQ_SERVER)
 	defer q.Close()
 
 	q.Bind("apiServers")
@@ -22,13 +22,11 @@ func ListenHeartbeat() {
 	go removeExpiredDataServer()
 	for msg := range c {
 		dataServer, err := strconv.Unquote(string(msg.Body))
-		doslog.FailOnError(err, "Unquote error")
+		utils.FailOnError(err, "Unquote error")
 		mutex.Lock()
 		dataServers[dataServer] = time.Now()
 		mutex.Unlock()
 	}
-
-
 }
 
 func removeExpiredDataServer() {

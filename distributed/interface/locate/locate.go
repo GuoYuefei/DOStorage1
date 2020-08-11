@@ -3,9 +3,9 @@ package locate
 
 import (
 	"encoding/json"
+	"github.com/GuoYuefei/DOStorage1/distributed/config"
 	"github.com/GuoYuefei/DOStorage1/distributed/rabbitmq"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -28,7 +28,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func Locate(name string) string {
-	q := rabbitmq.New(os.Getenv("RABBITMQ_SERVER"))
+	q := rabbitmq.New(config.Pub.RABBITMQ_SERVER)
 	q.Publish("dataServers", name)
 	c := q.Consume()
 	go func() {

@@ -2,7 +2,7 @@ package rabbitmq
 
 import (
 	"encoding/json"
-	"github.com/GuoYuefei/DOStorage1/distributed/doslog"
+	"github.com/GuoYuefei/DOStorage1/distributed/utils"
 	"github.com/streadway/amqp"
 )
 
@@ -14,10 +14,10 @@ type RabbitMQ struct {
 
 func New(s string) *RabbitMQ {
 	conn, err := amqp.Dial(s)
-	doslog.FailOnError(err, "Fail to connect to rabbitMQ server")
+	utils.FailOnError(err, "Fail to connect to rabbitMQ server")
 
 	ch, err := conn.Channel()
-	doslog.FailOnError(err, "Fail to open a Channel")
+	utils.FailOnError(err, "Fail to open a Channel")
 
 	q, err := ch.QueueDeclare(
 		"",
@@ -27,7 +27,7 @@ func New(s string) *RabbitMQ {
 		false,
 		nil,
 	)
-	doslog.FailOnError(err, "Fail to declare a queue")
+	utils.FailOnError(err, "Fail to declare a queue")
 
 	mq := new(RabbitMQ)
 	mq.channel = ch
@@ -45,14 +45,14 @@ func (q *RabbitMQ) Bind(exchange string) {
 		false,
 		nil,
 	)
-	doslog.FailOnError(err, "Fail to bind a queue")
+	utils.FailOnError(err, "Fail to bind a queue")
 
 	q.exchange = exchange
 }
 
 func (q *RabbitMQ) Send(queue string, body interface{}) {
 	str, err := json.Marshal(body)
-	doslog.FailOnError(err, "Fail to serialize body")
+	utils.FailOnError(err, "Fail to serialize body")
 
 	err = q.channel.Publish(
 		"",
@@ -64,13 +64,13 @@ func (q *RabbitMQ) Send(queue string, body interface{}) {
 			Body: []byte(str),
 		})
 
-	doslog.FailOnError(err, "send message error")
+	utils.FailOnError(err, "send message error")
 
 }
 
 func (q *RabbitMQ) Publish(exchange string, body interface{}) {
 	str, err := json.Marshal(body)
-	doslog.FailOnError(err, "Fail to serialize body")
+	utils.FailOnError(err, "Fail to serialize body")
 
 	err = q.channel.Publish(
 		exchange,
@@ -81,7 +81,7 @@ func (q *RabbitMQ) Publish(exchange string, body interface{}) {
 			ReplyTo: q.Name,
 			Body:    []byte(str),
 		})
-	doslog.FailOnError(err, "Fail to publish")
+	utils.FailOnError(err, "Fail to publish")
 }
 
 func (q *RabbitMQ) Consume() <-chan amqp.Delivery {
@@ -94,7 +94,7 @@ func (q *RabbitMQ) Consume() <-chan amqp.Delivery {
 		false,
 		nil,
 	)
-	doslog.FailOnError(err, "Fail to get message")
+	utils.FailOnError(err, "Fail to get message")
 
 	return c
 }

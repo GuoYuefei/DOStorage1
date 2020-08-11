@@ -24,11 +24,16 @@ $env:LISTEN_ADDRESS = "192.168.1.68:23333"
 $env:STORAGE_ROOT = YOU_PATH(Where you want to store the object)
 ./interface.exe or ./data.exe 
 ```
+```shell script
+export RABBITMQ_SERVER="amqp://test:test@localhost:5672/"
+export LISTEN_ADDRESS="localhost:23333"
+export STORAGE_ROOT=YOU_PATH(Where you want to store the object)
+```
 
 In rabbitmqctl command
 ```powershell
 rabbitmqctl add_user test test
-rabbitmqctl set_permissions -o / test ".*" ".*" ".*"
+rabbitmqctl set_permissions -p / test ".*" ".*" ".*"
 ```
 
 Then <code>go run declareExchange.go</code> in Rabbit Message Queue Server machine.

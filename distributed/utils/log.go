@@ -1,5 +1,4 @@
-// 作为日志管理包
-package doslog
+package utils
 
 import (
 	"log"

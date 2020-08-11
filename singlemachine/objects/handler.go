@@ -19,6 +19,8 @@ func put(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer f.Close()
+	//fmt.Println(time.Now())
+	//io.Copy(os.Stdout, r.Body)
 	io.Copy(f, r.Body)
 }
 

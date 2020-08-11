@@ -1,7 +1,8 @@
 package objects
 
 import (
-	"github.com/GuoYuefei/DOStorage1/distributed/doslog"
+	"github.com/GuoYuefei/DOStorage1/distributed/config"
+	"github.com/GuoYuefei/DOStorage1/distributed/utils"
 	"io"
 	"log"
 	"net/http"
@@ -9,10 +10,8 @@ import (
 	"strings"
 )
 
-var storage_root string = "STORAGE_ROOT"
-
 func put(w http.ResponseWriter, r *http.Request) {
-	f, e := os.Create(os.Getenv(storage_root)+"/objects/"+strings.Split(r.URL.EscapedPath(),"/")[2])
+	f, e := os.Create(config.ServerData.STORAGE_ROOT+"/objects/"+strings.Split(r.URL.EscapedPath(),"/")[2])
 
 	if e != nil {
 		log.Println(e)
@@ -24,10 +23,10 @@ func put(w http.ResponseWriter, r *http.Request) {
 }
 
 func get(w http.ResponseWriter, r *http.Request) {
-	f, e := os.Open(os.Getenv(storage_root)+"/objects/"+strings.Split(r.URL.EscapedPath(), "/")[2])
+	f, e := os.Open(config.ServerData.STORAGE_ROOT+"/objects/"+strings.Split(r.URL.EscapedPath(), "/")[2])
 
 	if e != nil {
-		doslog.FailOnError(e, "not found")
+		utils.FailOnError(e, "not found")
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}

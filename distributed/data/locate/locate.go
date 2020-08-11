@@ -1,8 +1,9 @@
 package locate
 
 import (
-	"github.com/GuoYuefei/DOStorage1/distributed/doslog"
+	"github.com/GuoYuefei/DOStorage1/distributed/config"
 	"github.com/GuoYuefei/DOStorage1/distributed/rabbitmq"
+	"github.com/GuoYuefei/DOStorage1/distributed/utils"
 	"os"
 	"strconv"
 )
@@ -13,7 +14,7 @@ func Locate(name string) bool {
 }
 
 func StartLocate() {
-	q := rabbitmq.New(os.Getenv("RABBITMQ_SERVER"))
+	q := rabbitmq.New(config.Pub.RABBITMQ_SERVER)
 	defer q.Close()
 
 	q.Bind("dataServers")
@@ -21,10 +22,10 @@ func StartLocate() {
 
 	for msg := range c {
 		object, err := strconv.Unquote(string(msg.Body))
-		doslog.FailOnError(err, "Unquote error")
+		utils.FailOnError(err, "Unquote error")
 
-		if Locate(os.Getenv("STORAGE_ROOT")+"/objects/"+object) {
-			q.Send(msg.ReplyTo, os.Getenv("LISTEN_ADDRESS"))
+		if Locate(config.ServerData.STORAGE_ROOT+"/objects/"+object) {
+			q.Send(msg.ReplyTo, config.ServerData.LISTEN_ADDRESS)
 		}
 	}
 }
