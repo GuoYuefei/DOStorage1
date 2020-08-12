@@ -2,7 +2,6 @@ package temp
 
 import (
 	"encoding/json"
-	"github.com/GuoYuefei/DOStorage1/distributed/config"
 	"github.com/GuoYuefei/DOStorage1/distributed/data/locate"
 	"github.com/GuoYuefei/DOStorage1/distributed/utils"
 	"github.com/google/uuid"
@@ -15,7 +14,7 @@ import (
 	"strings"
 )
 
-var tempfd = path.Join(config.ServerData.STORAGE_ROOT, "temp")
+var tempfd = locate.TempRoot
 
 type tempInfo struct {
 	Uuid string
@@ -24,7 +23,7 @@ type tempInfo struct {
 }
 
 func (t *tempInfo) writeToFile() error {
-	f, e := os.Create(path.Join(config.ServerData.STORAGE_ROOT, "/temp", t.Uuid))
+	f, e := os.Create(path.Join(tempfd, t.Uuid))
 	if e != nil {
 		return e
 	}
@@ -67,7 +66,7 @@ func post(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	_, e = os.Create(path.Join(config.ServerData.STORAGE_ROOT, "temp", t.Uuid+".dat"))
+	_, e = os.Create(path.Join(tempfd, t.Uuid+".dat"))
 	if e != nil {
 		utils.Log.Println(utils.Err, e)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -86,7 +85,8 @@ func patch(w http.ResponseWriter, r *http.Request) {
 	}
 	infoFile := path.Join(tempfd, uu)
 	datFile := infoFile+".dat"
-	f, e := os.OpenFile(datFile, os.O_WRONLY|os.O_APPEND, 0)
+	//f, e := os.OpenFile(datFile, os.O_WRONLY|os.O_CREATE, 0)
+	f, e := os.Create(datFile)
 	if e != nil {
 		utils.Log.Println(utils.Err, e)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -109,7 +109,7 @@ func patch(w http.ResponseWriter, r *http.Request) {
 	if actual > tempinfo.Size {
 		os.Remove(datFile)
 		os.Remove(infoFile)
-		utils.Log.Printf(utils.Info, "actual size %d, exceeds %d", actual, tempinfo.Size)
+		utils.Log.Printf(utils.Debug, "actual size %d, exceeds %d", actual, tempinfo.Size)
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 }
@@ -150,7 +150,7 @@ func put(w http.ResponseWriter, r *http.Request) {
 
 func delete(w http.ResponseWriter, r *http.Request) {
 	uu := strings.Split(r.URL.EscapedPath(), "/")[2]
-	infoFile := path.Join(config.ServerData.STORAGE_ROOT, "temp", uu)
+	infoFile := path.Join(tempfd, uu)
 	datFile := infoFile + ".dat"
 	os.Remove(infoFile)
 	os.Remove(datFile)
@@ -169,6 +169,6 @@ func readFromFile(uu string) (*tempInfo, error) {
 }
 
 func commitTempObject(datFile string, info *tempInfo) {
-	os.Rename(datFile, path.Join(config.ServerData.STORAGE_ROOT, "objects", info.Name))
+	os.Rename(datFile, path.Join(locate.ObjectRoot, info.Name))
 	locate.Add(info.Name)
 }

@@ -17,8 +17,16 @@ const (
 )
 
 var Log ILog
+var pre = map[int]string{
+	Info:      "[info] ",
+	Debug:     "[debug] ",
+	Record:    "[record] ",
+	Warning:   "[warning] ",
+	Err:       "[error] ",
+	Exception: "[exception] ",
+}
 
-func init()  {
+func init() {
 	Log = NewLog()
 }
 
@@ -32,13 +40,13 @@ type ILog interface {
 }
 
 type Logger struct {
-	log *log.Logger
+	log      *log.Logger
 	priority int
 }
 
 func NewLog() *Logger {
 	l := &Logger{}
-	l.log = log.New(os.Stdout, "", log.LstdFlags | log.Lshortfile)
+	l.log = log.New(os.Stdout, "", log.LstdFlags|log.Lmsgprefix)
 	l.priority = Info
 	return l
 }
@@ -62,6 +70,7 @@ func (l *Logger) Println(p int, a ...interface{}) {
 	if l.priority < p {
 		return
 	}
+	l.log.SetPrefix(prefix(p))
 	l.log.Println(a...)
 }
 
@@ -72,6 +81,7 @@ func (l *Logger) Print(p int, a ...interface{}) {
 	if l.priority < p {
 		return
 	}
+	l.log.SetPrefix(prefix(p))
 	l.log.Print(a...)
 }
 
@@ -89,16 +99,10 @@ func (l *Logger) SetOut(writer io.Writer) {
 
 // 根据优先级设置log的前缀
 func prefix(p int) string {
-	switch p {
-	case Info: return "info"
-	case Debug: return "debug"
-	case Record: return "record"
-	case Warning: return "warning"
-	case Err: return "error"
-	case Exception: return "exception"
-	default:
-		return "none"
+	if v, ok := pre[p]; ok {
+		return v
 	}
+	return "none"
 }
 
 func FailOnError(err error, message string) {

@@ -2,7 +2,6 @@ package objectstream
 
 import (
 	"fmt"
-	"github.com/GuoYuefei/DOStorage1/distributed/utils"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -28,7 +27,6 @@ func NewTempPutStream(server, hash string, size int64) (*TempPutStream, error) {
 	if e != nil {
 		return nil, e
 	}
-	utils.Log.Println(utils.Info, "server: "+server)
 	return &TempPutStream{server, string(uuid)}, nil
 }
 

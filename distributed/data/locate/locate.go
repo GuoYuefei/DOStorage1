@@ -4,6 +4,8 @@ import (
 	"github.com/GuoYuefei/DOStorage1/distributed/config"
 	"github.com/GuoYuefei/DOStorage1/distributed/rabbitmq"
 	"github.com/GuoYuefei/DOStorage1/distributed/utils"
+	"log"
+	"os"
 	"path/filepath"
 	"strconv"
 	"sync"
@@ -11,6 +13,28 @@ import (
 
 var objects map[string]int = make(map[string]int)
 var mutex sync.Mutex
+
+var ObjectRoot = filepath.Join(config.ServerData.STORAGE_ROOT, "objects")
+var TempRoot = filepath.Join(config.ServerData.STORAGE_ROOT, "temp")
+
+func init() {
+	// make dir for ./data/objects
+	_, e := os.Stat(ObjectRoot)
+	if e != nil {
+		e := os.MkdirAll(ObjectRoot, os.ModePerm)
+		if e != nil {
+			log.Fatal(e)
+		}
+	}
+
+	_, e = os.Stat(TempRoot)
+	if e != nil {
+		e := os.MkdirAll(TempRoot, os.ModePerm)
+		if e != nil {
+			log.Fatal(e)
+		}
+	}
+}
 
 func Locate(hash string) bool {
 	mutex.Lock()
@@ -49,7 +73,7 @@ func StartLocate() {
 }
 
 func CollectObjects() {
-	files, _ := filepath.Glob(filepath.Join(config.ServerData.STORAGE_ROOT, "/objects/*"))
+	files, _ := filepath.Glob(filepath.Join(ObjectRoot, "/*"))
 	for i := range files {
 		hash := filepath.Base(files[i])
 		objects[hash] = 1

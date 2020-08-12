@@ -1,6 +1,7 @@
 package util
 
 import (
+	"github.com/GuoYuefei/DOStorage1/distributed/utils"
 	"net/http"
 	"strconv"
 )
@@ -17,6 +18,9 @@ func GetHashFromHeader(h http.Header) string {
 }
 
 func GetSizeFromHeader(h http.Header) int64 {
-	size, _ := strconv.ParseInt(h.Get("content-length"), 0, 64)
+	size, e := strconv.ParseInt(h.Get("Content-Length"), 0, 64)
+	if e != nil {
+		utils.Log.Println(utils.Err, e)
+	}
 	return size
 }

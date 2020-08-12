@@ -1,9 +1,7 @@
 package config
 
 import (
-	"log"
 	"os"
-	"path"
 )
 
 var Pub *SPub
@@ -42,15 +40,7 @@ func init() {
 
 	// todo config
 
-	// make dir for ./data/objects
-	objectsRoot := path.Join(ServerData.STORAGE_ROOT, "objects")
-	_, e := os.Stat(objectsRoot)
-	if e != nil {
-		e := os.MkdirAll(objectsRoot, os.ModePerm)
-		if e != nil {
-			log.Fatal(e)
-		}
-	}
+
 }
 
 type SPub struct {

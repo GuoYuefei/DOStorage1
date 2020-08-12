@@ -11,8 +11,8 @@ import (
 )
 
 func main() {
-	//rabbitmq 的前置准备， 声明两个exchange
-	//readyForRabbitMQ()
+	//node rabbitmq 的前置准备， 声明两个exchange
+	readyForRabbitMQ()
 
 	// elasticsearch 的前置准备， 创建metadata索引以及object类型的映射
 	// node elasticsearch 7.x不在支持指定索引类型

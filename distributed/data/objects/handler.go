@@ -1,7 +1,6 @@
 package objects
 
 import (
-	"github.com/GuoYuefei/DOStorage1/distributed/config"
 	"github.com/GuoYuefei/DOStorage1/distributed/data/locate"
 	"github.com/GuoYuefei/DOStorage1/distributed/utils"
 	"io"
@@ -38,7 +37,7 @@ func get(w http.ResponseWriter, r *http.Request) {
 }
 
 func getFile(hash string) string {
-	file := path.Join(config.ServerData.STORAGE_ROOT, "objects", hash)
+	file := path.Join(locate.ObjectRoot, hash)
 	f, e := os.Open(file)
 	if e != nil {
 		return ""

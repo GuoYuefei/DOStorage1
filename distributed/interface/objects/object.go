@@ -55,15 +55,17 @@ func del(w http.ResponseWriter, r *http.Request) {
 func put(w http.ResponseWriter, r *http.Request) {
 	hash := util.GetHashFromHeader(r.Header)
 	if hash == "" {
-		log.Println("missing object hash in digest header")
+		utils.Log.Println(utils.Record, "missing object hash in digest header")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	size := util.GetSizeFromHeader(r.Header)
+
+	utils.Log.Println(utils.Debug, "from header, size is ", size)
+
 	c, e := storeObject(r.Body, url.PathEscape(hash), size)
-	utils.FailOnError(e, "Fail to storeObject")
 	if e != nil {
-		//log.Println(e)
+		utils.Log.Println(utils.Err, e)
 		w.WriteHeader(c)
 		return
 	}
@@ -98,13 +100,16 @@ func get(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+	utils.Log.Println(utils.Debug, "get for ", name, "version is ", version)
 	meta, e := es.GetMetadata(name, version)
+	utils.Log.Println(utils.Debug, "get metadata is ", meta)
 	if e != nil {
 		log.Println(e)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	if meta.Hash == "" {
+		utils.Log.Println(utils.Info, "meta's hash is none")
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
@@ -112,7 +117,7 @@ func get(w http.ResponseWriter, r *http.Request) {
 
 	stream, err := getStream(object)
 	if err != nil {
-		log.Println(err)
+		utils.Log.Println(utils.Info, err)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
@@ -130,11 +135,11 @@ func getStream(object string) (io.Reader, error) {
 
 func storeObject(r io.Reader, hash string, size int64) (int, error) {
 	if locate.Exist(url.PathEscape(hash)) {
+		utils.Log.Println(utils.Debug, hash, "file exist")
 		// 存在就直接返回 ok
 		return http.StatusOK, nil
 	}
 
-	// todo
 	stream, e := putStream(url.PathEscape(hash), size)
 	if e != nil {
 		return http.StatusInternalServerError, e
@@ -156,6 +161,6 @@ func putStream(hash string, size int64) (*objectstream.TempPutStream, error) {
 	if server == "" {
 		return nil, fmt.Errorf("cannot find any dataServer")
 	}
-
+	utils.Log.Println(utils.Debug, "select data server ", server)
 	return objectstream.NewTempPutStream(server, hash, size)
 }
