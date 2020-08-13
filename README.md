@@ -72,11 +72,15 @@ Then you can find the corresponding binary files data.exe and interface.exe in t
 
 You can compile it yourself with the source code.
 
-| Http Method | URL                                     | Param                                                        | Effect                  |
-| ----------- | --------------------------------------- | ------------------------------------------------------------ | ----------------------- |
-| GET         | "http://"+APIHOST+"/objects/"+"/[name]" | [version=「int」] if it not has, will return object that is Latest Version | Get object named [name] |
-| PUT         | "http://"+APIHOST+"/objects/"+"/[name]" | 1. Request.Body = object content 2. Content-length=len(object) 3. Digest="SHA-256=「object's hash base64」" | Put object              |
-| DELETE      | "http://"+APIHOST+"/objects/"+"/[name]" |                                                              | Delte object            |
+**This is the external RESTful interface table of the interface server：**
+
+| Http Method | URL                                     | Param                                                        | Effect                                                       |
+| ----------- | --------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| GET         | "http://"+APIHOST+"/objects/"+"[name]"  | [version=「int」]                                            | Get object named [name]， if version is empty, will return object that is Latest Version |
+| PUT         | "http://"+APIHOST+"/objects/"+"[name]"  | 1. Request.Body = object content 2. Content-length=len(object) 3. Digest="SHA-256=「object's hash base64」" | Put object                                                   |
+| DELETE      | "http://"+APIHOST+"/objects/"+"[name]"  |                                                              | Delte object                                                 |
+| Get         | "http://"+APIHOST+"/versions/"+"[name]" |                                                              | If name is empty, all version information for all objects is returned. Otherwise, all versions of the corresponding object are returned |
+| Get         | "http://"+APIHOST+"/locate/"+"[name]"   |                                                              | Locate the data server on which the object named [name] is located |
 
 ## License
 
