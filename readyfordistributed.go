@@ -58,11 +58,12 @@ func readyForElastic() {
 	//		}
 	//	`)
 
+	// keyword 在5.x时出现，keyword、text代替原来的string类型。 keyword为原来的"index":"not_analyzed"
 	b := strings.NewReader(`
 		{
 			"mappings":{
 				"properties":{
-					"name":{"type":"text","index": true},
+					"name":{"type":"keyword","index": true},
 					"version":{"type":"integer"},
 					"size":{"type":"integer"},
 					"hash":{"type":"text"}
