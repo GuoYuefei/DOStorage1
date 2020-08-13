@@ -19,7 +19,6 @@ func Put(file string, ok bool) error {
 		return putCorrect(file)
 	}
 	return putIncorrect(file)
-
 }
 
 func Get(name string) error {
@@ -31,6 +30,20 @@ func Get(name string) error {
 		return fmt.Errorf("response error, %s\n", resp.Status)
 	}
 	io.Copy(os.Stdout, resp.Body)
+	fmt.Println()
+	return nil
+}
+
+func GetAllVersion(name string) error {
+	resp, err := http.Get("http://" + config.ServerInf.LISTEN_ADDRESS + "/versions/" + name)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("response error, %s\n", resp.Status)
+	}
+	io.Copy(os.Stdout, resp.Body)
+	fmt.Println()
 	return nil
 }
 
@@ -48,6 +61,23 @@ func Del(name string) error {
 		return fmt.Errorf("response error, %s\n", do.Status)
 	}
 	io.Copy(os.Stdout, do.Body)
+	fmt.Println()
+	return nil
+}
+
+func Locat(name string) error {
+	do, err := http.Get("http://" + config.ServerInf.LISTEN_ADDRESS + "/locate/" + name)
+	if err != nil {
+		return err
+	}
+	if err != nil {
+		return err
+	}
+	if do.StatusCode != http.StatusOK {
+		return fmt.Errorf("response error, %s\n", do.Status)
+	}
+	io.Copy(os.Stdout, do.Body)
+	fmt.Println()
 	return nil
 }
 
@@ -91,6 +121,7 @@ func putCorrect(file string) error {
 		return fmt.Errorf("response status fault, message is %s", response.Status)
 	}
 	io.Copy(os.Stdout, response.Body)
+	fmt.Println()
 	return nil
 }
 
@@ -121,5 +152,6 @@ func putIncorrect(file string) error {
 		return fmt.Errorf("response status fault, message is %s", response.Status)
 	}
 	io.Copy(os.Stdout, response.Body)
+	fmt.Println()
 	return nil
 }

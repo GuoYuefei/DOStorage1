@@ -18,9 +18,9 @@ const (
 
 var Log ILog
 var pre = map[int]string{
-	Info:      "[info] ",
 	Debug:     "[debug] ",
 	Record:    "[record] ",
+	Info:      "[info] ",
 	Warning:   "[warning] ",
 	Err:       "[error] ",
 	Exception: "[exception] ",

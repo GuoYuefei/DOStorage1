@@ -114,7 +114,6 @@ func get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	object := url.PathEscape(meta.Hash)
-
 	stream, err := getStream(object)
 	if err != nil {
 		utils.Log.Println(utils.Info, err)
@@ -133,19 +132,21 @@ func getStream(object string) (io.Reader, error) {
 	return objectstream.NewGetStream(server, object)
 }
 
+// 接收的 hash 是已经 url.pathescape 过得
 func storeObject(r io.Reader, hash string, size int64) (int, error) {
-	if locate.Exist(url.PathEscape(hash)) {
+	if locate.Exist(hash) {
 		utils.Log.Println(utils.Debug, hash, "file exist")
 		// 存在就直接返回 ok
 		return http.StatusOK, nil
 	}
 
-	stream, e := putStream(url.PathEscape(hash), size)
+	stream, e := putStream(hash, size)
 	if e != nil {
 		return http.StatusInternalServerError, e
 	}
 	reader := io.TeeReader(r, stream)			// TeeReader 可以实现在读取的同事，将内容写入stream
 	d := utils.CalculateHash(reader)
+	d = url.PathEscape(d)
 	if d != hash {
 		// 验证hash值不通过
 		stream.Commit(false)

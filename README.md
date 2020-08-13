@@ -41,7 +41,7 @@ Use [Kibana](https://www.elastic.co/products/kibana) to view and manage your ES.
 |ES_SERVER|need / "localhost:9200"|Not sure / "localhost:9200"|
 
 -----
-You can use default values or set environment variables. 
+You can use default values **or** set environment variables. 
 
 ```powershell
 // powershell
@@ -71,6 +71,12 @@ The configuration content mentioned above needs to be configured on each node ma
 Then you can find the corresponding binary files data.exe and interface.exe in the release. Run the two programs on different node machines through the command line.
 
 You can compile it yourself with the source code.
+
+| Http Method | URL                                     | Param                                                        | Effect                  |
+| ----------- | --------------------------------------- | ------------------------------------------------------------ | ----------------------- |
+| GET         | "http://"+APIHOST+"/objects/"+"/[name]" | [version=「int」] if it not has, will return object that is Latest Version | Get object named [name] |
+| PUT         | "http://"+APIHOST+"/objects/"+"/[name]" | 1. Request.Body = object content 2. Content-length=len(object) 3. Digest="SHA-256=「object's hash base64」" | Put object              |
+| DELETE      | "http://"+APIHOST+"/objects/"+"/[name]" |                                                              | Delte object            |
 
 ## License
 

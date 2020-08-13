@@ -65,8 +65,9 @@ func StartLocate() {
 	for msg := range c {
 		hash, err := strconv.Unquote(string(msg.Body))
 		utils.PanicOnError(err, "Unquote error")
-
+		utils.Log.Printf(utils.Debug, "get hash %s for locate\n", hash)
 		if Locate(hash) {
+			// 定位成功就发送自己的信息出去
 			q.Send(msg.ReplyTo, config.ServerData.LISTEN_ADDRESS)
 		}
 	}

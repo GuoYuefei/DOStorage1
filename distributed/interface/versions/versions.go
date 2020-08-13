@@ -3,7 +3,7 @@ package versions
 import (
 	"encoding/json"
 	"github.com/GuoYuefei/DOStorage1/distributed/es"
-	"log"
+	"github.com/GuoYuefei/DOStorage1/distributed/utils"
 	"net/http"
 	"strings"
 )
@@ -20,11 +20,11 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	for {
 		metas, e := es.SearchAllVersions(name, from, size)
 		if e != nil {
-			log.Println(e)
+			utils.Log.Println(utils.Err, e)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-
+		utils.Log.Println(utils.Debug, metas)
 		for i := range metas {
 			b, _ := json.Marshal(metas[i])
 			w.Write(b)

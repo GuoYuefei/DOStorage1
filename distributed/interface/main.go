@@ -5,6 +5,7 @@ import (
 	"github.com/GuoYuefei/DOStorage1/distributed/interface/heartbeat"
 	"github.com/GuoYuefei/DOStorage1/distributed/interface/locate"
 	"github.com/GuoYuefei/DOStorage1/distributed/interface/objects"
+	"github.com/GuoYuefei/DOStorage1/distributed/interface/versions"
 	"github.com/GuoYuefei/DOStorage1/distributed/utils"
 	"net/http"
 )
@@ -15,6 +16,7 @@ func main() {
 	go heartbeat.ListenHeartbeat()
 	http.HandleFunc("/objects/", objects.Handler)
 	http.HandleFunc("/locate/", locate.Handler)
+	http.HandleFunc("/versions/", versions.Handler)
 	utils.Log.Println(utils.Info, "interface server will run in ", config.ServerInf.LISTEN_ADDRESS)
 	utils.FailOnError(http.ListenAndServe(config.ServerInf.LISTEN_ADDRESS, nil), "Fail to open a server")
 }

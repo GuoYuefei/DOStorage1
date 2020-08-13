@@ -128,6 +128,10 @@ func SearchAllVersions(name string, from, size int) ([]Metadata, error) {
 	if e != nil {
 		return nil, e
 	}
+	if r.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("SearchAllVersions error, status: %s", r.Status)
+	}
+
 	metas := make([]Metadata, 0)
 	result, _ := ioutil.ReadAll(r.Body)
 	var sr searchResult
