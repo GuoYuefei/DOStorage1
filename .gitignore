@@ -3,3 +3,4 @@
 /tmp
 /data*
 go.sum
+build/
