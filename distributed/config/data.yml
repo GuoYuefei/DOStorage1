@@ -1,0 +1,5 @@
+public:
+  es_server: localhost:9200
+  rabbitmq_server: amqp://test:test@localhost:5672/
+listen_address: localhost:23334
+storage_root: ./data
