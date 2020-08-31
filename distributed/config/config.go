@@ -88,8 +88,10 @@ func Flags(serverType ServerType) {
 	switch serverType {
 	case TypeSInf:
 		flag.StringVar(&ConfigFile, "c", "./config/interface.yml", usage)
+		flag.StringVar(&ConfigFile, "-config", "./config/interface.yml", usage)
 	case TypeSData:
 		flag.StringVar(&ConfigFile, "c", "./config/data.yml", usage)
+		flag.StringVar(&ConfigFile, "-config", "./config/data.yml", usage)
 	default:
 		utils.Log.Println(utils.Warning, "Server Type No MATCH!")
 	}

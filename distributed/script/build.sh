@@ -6,6 +6,9 @@
 go build -o ./build/interserver ./interface/main.go
 go build -o ./build/dataserver ./data/main.go
 
-mkdir ./build/config
+if ! [ -d ./build/config ]
+then
+  mkdir ./build/config
+fi
 cp ./config/data.yml ./build/config/
 cp ./config/interface.yml ./build/config/
