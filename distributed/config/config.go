@@ -68,7 +68,6 @@ func ConfigParse(serverType ServerType) {
 		utils.Log.Println(utils.Warning, "Server Type No MATCH!")
 	}
 
-
 	if os.Getenv("RABBITMQ_SERVER") != "" {
 		Pub.RABBITMQ_SERVER = os.Getenv("RABBITMQ_SERVER")
 	}
@@ -81,6 +80,12 @@ func ConfigParse(serverType ServerType) {
 	}
 	if os.Getenv("STORAGE_ROOT") != "" {
 		ServerData.STORAGE_ROOT = os.Getenv("STORAGE_ROOT")
+	}
+	// 最后如果STORAGE_ROOT是相对位置的话，转成绝对路径
+	if !filepath.IsAbs(ServerData.STORAGE_ROOT) {
+		exePath, _ := exec.LookPath(os.Args[0])
+		path, _ := filepath.Abs(filepath.Dir(exePath))
+		ConfigFile = filepath.Join(path, ServerData.STORAGE_ROOT)
 	}
 }
 
