@@ -8,6 +8,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"os"
 	"path"
 	"strconv"
@@ -20,6 +21,17 @@ type tempInfo struct {
 	Uuid string
 	Name string					// is hash
 	Size int64
+}
+
+func (t *tempInfo) hash() string {
+	s := strings.Split(t.Name, ".")
+	return s[0]
+}
+
+func (t *tempInfo) id() int {
+	s := strings.Split(t.Name, ".")
+	id, _ := strconv.Atoi(s[1])
+	return id
 }
 
 func (t *tempInfo) writeToFile() error {
@@ -171,4 +183,13 @@ func readFromFile(uu string) (*tempInfo, error) {
 func commitTempObject(datFile string, info *tempInfo) {
 	os.Rename(datFile, path.Join(locate.ObjectRoot, info.Name))
 	locate.Add(info.Name)
+}
+
+// 最后的名字定位成 <hash>.X.<hash of shard X>
+func commitTempObject_v2_0(datFile string, info *tempInfo) {
+	f, _ := os.Open(datFile)
+	d := url.PathEscape(utils.CalculateHash(f))
+	f.Close()
+	os.Rename(datFile, path.Join(locate.ObjectRoot, info.Name+"."+d))
+	locate.Add_v2_0(info.hash(), info.id())
 }

@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 )
 
@@ -44,6 +45,29 @@ func getFile(hash string) string {
 	}
 	d := url.PathEscape(utils.CalculateHash(f))
 	f.Close()
+	if d != hash {
+		// 验证文件不成功
+		utils.Log.Printf(utils.Err, "object hash mismatch, remove", file)
+		locate.Del(hash)
+		os.Remove(file)
+		return ""
+	}
+	return file
+}
+
+func getFIle_v2_0(name string) string {
+	paths := path.Join(locate.ObjectRoot, name+".*")
+	files, _ := filepath.Glob(paths)
+	if len(files) != 1 {
+		return ""
+	}
+	file := files[0]
+	f, e := os.Open(file)
+	if e == nil {
+		defer f.Close()
+	}
+	d := utils.CalculateHash(f)
+	hash := strings.Split(file, ".")[2]
 	if d != hash {
 		// 验证文件不成功
 		utils.Log.Printf(utils.Err, "object hash mismatch, remove", file)
