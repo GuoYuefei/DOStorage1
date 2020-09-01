@@ -5,7 +5,6 @@ import (
 	"github.com/GuoYuefei/DOStorage1/distributed/utils"
 	"io"
 	"net/http"
-	"net/url"
 	"os"
 	"path"
 	"path/filepath"
@@ -37,25 +36,7 @@ func get(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func getFile(hash string) string {
-	file := path.Join(locate.ObjectRoot, hash)
-	f, e := os.Open(file)
-	if e != nil {
-		return ""
-	}
-	d := url.PathEscape(utils.CalculateHash(f))
-	f.Close()
-	if d != hash {
-		// 验证文件不成功
-		utils.Log.Printf(utils.Err, "object hash mismatch, remove", file)
-		locate.Del(hash)
-		os.Remove(file)
-		return ""
-	}
-	return file
-}
-
-func getFIle_v2_0(name string) string {
+func getFile(name string) string {
 	paths := path.Join(locate.ObjectRoot, name+".*")
 	files, _ := filepath.Glob(paths)
 	if len(files) != 1 {

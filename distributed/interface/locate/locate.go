@@ -60,20 +60,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(b)
 }
 
-func Locate(hash string) string {
-	q := rabbitmq.New(config.Pub.RABBITMQ_SERVER)
-	q.Publish("dataServers", hash)
-	c := q.Consume()
-	go func() {
-		time.Sleep(1*time.Second)
-		q.Close()
-	}()
-	msg := <-c
-	s, _ := strconv.Unquote(string(msg.Body))
-	return s
-}
-
-func Locate_v0_2(name string) (locateInfo map[int]string) {
+func Locate(name string) (locateInfo map[int]string) {
 	q := rabbitmq.New(config.Pub.RABBITMQ_SERVER)
 	q.Publish("dataServers", name)
 	c := q.Consume()
@@ -95,9 +82,5 @@ func Locate_v0_2(name string) (locateInfo map[int]string) {
 }
 
 func Exist(name string) bool {
-	return Locate(name) != ""
-}
-
-func Exist_v0_2(name string) bool {
 	return len(Locate(name)) >= rs.DATA_SHARDS
 }

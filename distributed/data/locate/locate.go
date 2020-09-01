@@ -39,14 +39,7 @@ func init() {
 	}
 }
 
-func Locate(hash string) bool {
-	mutex.Lock()
-	_, ok := objects[hash]
-	mutex.Unlock()
-	return ok
-}
-
-func Locate_v2_0(hash string) int {
+func Locate(hash string) int {
 	mutex.Lock()
 	id, ok := objects[hash]
 	mutex.Unlock()
@@ -56,13 +49,7 @@ func Locate_v2_0(hash string) int {
 	return id
 }
 
-func Add(hash string) {
-	mutex.Lock()
-	objects[hash] = 1
-	mutex.Unlock()
-}
-
-func Add_v2_0(hash string, id int) {
+func Add(hash string, id int) {
 	mutex.Lock()
 	objects[hash] = id
 	mutex.Unlock()
@@ -85,25 +72,7 @@ func StartLocate() {
 		hash, err := strconv.Unquote(string(msg.Body))
 		utils.PanicOnError(err, "Unquote error")
 		utils.Log.Printf(utils.Debug, "get hash %s for locate\n", hash)
-		if Locate(hash) {
-			// 定位成功就发送自己的信息出去
-			q.Send(msg.ReplyTo, config.ServerData.LISTEN_ADDRESS)
-		}
-	}
-}
-
-func StartLocate_v2_0() {
-	q := rabbitmq.New(config.Pub.RABBITMQ_SERVER)
-	defer q.Close()
-
-	q.Bind("dataServers")
-	c := q.Consume()
-
-	for msg := range c {
-		hash, err := strconv.Unquote(string(msg.Body))
-		utils.PanicOnError(err, "Unquote error")
-		utils.Log.Printf(utils.Debug, "get hash %s for locate\n", hash)
-		id := Locate_v2_0(hash)
+		id := Locate(hash)
 		if id != -1 {
 			q.Send(msg.ReplyTo, types.LocateMessage{Addr: config.ServerData.LISTEN_ADDRESS, Id: id})
 		}
@@ -111,14 +80,6 @@ func StartLocate_v2_0() {
 }
 
 func CollectObjects() {
-	files, _ := filepath.Glob(filepath.Join(ObjectRoot, "/*"))
-	for i := range files {
-		hash := filepath.Base(files[i])
-		objects[hash] = 1
-	}
-}
-
-func CollectObjects_v2_0() {
 	files, _ := filepath.Glob(filepath.Join(ObjectRoot, "/*"))
 	for i := range files {
 		file := strings.Split(filepath.Base(files[i]), ".")

@@ -5,7 +5,6 @@ import (
 	"github.com/GuoYuefei/DOStorage1/distributed/es"
 	"github.com/GuoYuefei/DOStorage1/distributed/interface/heartbeat"
 	"github.com/GuoYuefei/DOStorage1/distributed/interface/locate"
-	"github.com/GuoYuefei/DOStorage1/distributed/interface/objectstream"
 	"github.com/GuoYuefei/DOStorage1/distributed/interface/rs"
 	"github.com/GuoYuefei/DOStorage1/distributed/interface/util"
 	"github.com/GuoYuefei/DOStorage1/distributed/utils"
@@ -105,43 +104,6 @@ func get(w http.ResponseWriter, r *http.Request) {
 	meta, e := es.GetMetadata(name, version)
 	utils.Log.Println(utils.Debug, "get metadata is ", meta)
 	if e != nil {
-		log.Println(e)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	if meta.Hash == "" {
-		utils.Log.Println(utils.Info, "meta's hash is none")
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-	object := url.PathEscape(meta.Hash)
-	stream, err := getStream(object)
-	if err != nil {
-		utils.Log.Println(utils.Info, err)
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-
-	io.Copy(w, stream)
-}
-
-func get_v2_0(w http.ResponseWriter, r *http.Request) {
-	name := strings.Split(r.URL.EscapedPath(), "/")[2]
-	versionId := r.URL.Query()["version"]
-	version := 0
-	var e error
-	if len(versionId) != 0 {
-		version, e = strconv.Atoi(versionId[0])
-		if e != nil {
-			log.Println(e)
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-	}
-	utils.Log.Println(utils.Debug, "get for ", name, "version is ", version)
-	meta, e := es.GetMetadata(name, version)
-	utils.Log.Println(utils.Debug, "get metadata is ", meta)
-	if e != nil {
 		utils.Log.Println(utils.Record, e)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -153,7 +115,7 @@ func get_v2_0(w http.ResponseWriter, r *http.Request) {
 	}
 	object := url.PathEscape(meta.Hash)
 	// todo
-	stream, err := GetStream_v2_0(object, meta.Size)
+	stream, err := GetStream(object, meta.Size)
 	if err != nil {
 		utils.Log.Println(utils.Record, err)
 		w.WriteHeader(http.StatusNotFound)
@@ -170,17 +132,10 @@ func get_v2_0(w http.ResponseWriter, r *http.Request) {
 	stream.Close()
 }
 
-func getStream(object string) (io.Reader, error) {
-	server := locate.Locate(object)
-	if server == "" {
-		return nil, fmt.Errorf("object %s locate fail", object)
-	}
-	return objectstream.NewGetStream(server, object)
-}
 
-func GetStream_v2_0(hash string, size int64) (*rs.RSGetStream, error) {
+func GetStream(hash string, size int64) (*rs.RSGetStream, error) {
 	// todo
-	locateInfo := locate.Locate_v0_2(hash)
+	locateInfo := locate.Locate(hash)
 	if len(locateInfo) < rs.DATA_SHARDS {
 		return nil, fmt.Errorf("object %s locate fail, result %v", hash, locateInfo)
 	}
@@ -217,16 +172,7 @@ func storeObject(r io.Reader, hash string, size int64) (int, error) {
 	return http.StatusOK, nil
 }
 
-func putStream(hash string, size int64) (*objectstream.TempPutStream, error) {
-	server := heartbeat.ChooseRandomDataServer()
-	if server == "" {
-		return nil, fmt.Errorf("cannot find any dataServer")
-	}
-	utils.Log.Println(utils.Debug, "select data server ", server)
-	return objectstream.NewTempPutStream(server, hash, size)
-}
-
-func putStream_v2_0(hash string, size int64) (*rs.RSPutStream, error) {
+func putStream(hash string, size int64) (*rs.RSPutStream, error) {
 	servers := heartbeat.ChooseRandomDataServers_v0_2(rs.ALL_SHARDS, nil)
 	if len(servers) != rs.ALL_SHARDS {
 		return nil, fmt.Errorf("cannot find enough dataServer")

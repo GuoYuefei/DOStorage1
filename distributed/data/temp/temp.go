@@ -180,16 +180,12 @@ func readFromFile(uu string) (*tempInfo, error) {
 	return &info, nil
 }
 
-func commitTempObject(datFile string, info *tempInfo) {
-	os.Rename(datFile, path.Join(locate.ObjectRoot, info.Name))
-	locate.Add(info.Name)
-}
 
 // 最后的名字定位成 <hash>.X.<hash of shard X>
-func commitTempObject_v2_0(datFile string, info *tempInfo) {
+func commitTempObject(datFile string, info *tempInfo) {
 	f, _ := os.Open(datFile)
 	d := url.PathEscape(utils.CalculateHash(f))
 	f.Close()
 	os.Rename(datFile, path.Join(locate.ObjectRoot, info.Name+"."+d))
-	locate.Add_v2_0(info.hash(), info.id())
+	locate.Add(info.hash(), info.id())
 }
