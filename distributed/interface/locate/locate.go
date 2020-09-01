@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"github.com/GuoYuefei/DOStorage1/distributed/config"
 	"github.com/GuoYuefei/DOStorage1/distributed/es"
+	"github.com/GuoYuefei/DOStorage1/distributed/interface/rs"
 	"github.com/GuoYuefei/DOStorage1/distributed/rabbitmq"
+	"github.com/GuoYuefei/DOStorage1/distributed/types"
 	"github.com/GuoYuefei/DOStorage1/distributed/utils"
 	"log"
 	"net/http"
@@ -71,6 +73,31 @@ func Locate(hash string) string {
 	return s
 }
 
+func Locate_v0_2(name string) (locateInfo map[int]string) {
+	q := rabbitmq.New(config.Pub.RABBITMQ_SERVER)
+	q.Publish("dataServers", name)
+	c := q.Consume()
+	go func() {
+		time.Sleep(1*time.Second)
+		q.Close()
+	}()
+	locateInfo = make(map[int]string)
+	for i := 0; i < rs.ALL_SHARDS; i++ {
+		msg := <-c
+		if len(msg.Body) == 0 {
+			return
+		}
+		var info types.LocateMessage
+		json.Unmarshal(msg.Body, &info)
+		locateInfo[info.Id] = info.Addr
+	}
+	return
+}
+
 func Exist(name string) bool {
 	return Locate(name) != ""
+}
+
+func Exist_v0_2(name string) bool {
+	return len(Locate(name)) >= rs.DATA_SHARDS
 }
