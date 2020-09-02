@@ -5,6 +5,7 @@ import (
 	"github.com/GuoYuefei/DOStorage1/distributed/utils"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"log"
 	"os"
 	"os/exec"
 	"path"
@@ -27,6 +28,30 @@ const (
 	TypeSInf = iota
 	TypeSData
 )
+
+var ObjectRoot string
+var TempRoot string
+
+func Init() {
+	ObjectRoot = filepath.Join(ServerData.STORAGE_ROOT, "objects")
+	TempRoot = filepath.Join(ServerData.STORAGE_ROOT, "temp")
+	// make dir for ./data/objects
+	_, e := os.Stat(ObjectRoot)
+	if e != nil {
+		e := os.MkdirAll(ObjectRoot, os.ModePerm)
+		if e != nil {
+			log.Fatal(e)
+		}
+	}
+
+	_, e = os.Stat(TempRoot)
+	if e != nil {
+		e := os.MkdirAll(TempRoot, os.ModePerm)
+		if e != nil {
+			log.Fatal(e)
+		}
+	}
+}
 
 func init() {
 
@@ -85,8 +110,11 @@ func ConfigParse(serverType ServerType) {
 	if !filepath.IsAbs(ServerData.STORAGE_ROOT) {
 		exePath, _ := exec.LookPath(os.Args[0])
 		path, _ := filepath.Abs(filepath.Dir(exePath))
-		ConfigFile = filepath.Join(path, ServerData.STORAGE_ROOT)
+		ServerData.STORAGE_ROOT = filepath.Join(path, ServerData.STORAGE_ROOT)
 	}
+
+	// 配置结束后初始化
+	Init()
 }
 
 func Flags(serverType ServerType) {

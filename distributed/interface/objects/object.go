@@ -114,7 +114,6 @@ func get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	object := url.PathEscape(meta.Hash)
-	// todo
 	stream, err := GetStream(object, meta.Size)
 	if err != nil {
 		utils.Log.Println(utils.Record, err)
@@ -134,7 +133,6 @@ func get(w http.ResponseWriter, r *http.Request) {
 
 
 func GetStream(hash string, size int64) (*rs.RSGetStream, error) {
-	// todo
 	locateInfo := locate.Locate(hash)
 	if len(locateInfo) < rs.DATA_SHARDS {
 		return nil, fmt.Errorf("object %s locate fail, result %v", hash, locateInfo)
@@ -142,7 +140,7 @@ func GetStream(hash string, size int64) (*rs.RSGetStream, error) {
 	dataServers := make([]string, 0)
 	if len(locateInfo) != rs.ALL_SHARDS {
 		// 如果不是全部定位成功，那么需要选取修复用的server
-		dataServers = heartbeat.ChooseRandomDataServers_v0_2(rs.ALL_SHARDS-len(locateInfo), locateInfo)
+		dataServers = heartbeat.ChooseRandomDataServers(rs.ALL_SHARDS-len(locateInfo), locateInfo)
 	}
 	return rs.NewRSGetStream(locateInfo, dataServers, hash, size)
 }
@@ -173,7 +171,7 @@ func storeObject(r io.Reader, hash string, size int64) (int, error) {
 }
 
 func putStream(hash string, size int64) (*rs.RSPutStream, error) {
-	servers := heartbeat.ChooseRandomDataServers_v0_2(rs.ALL_SHARDS, nil)
+	servers := heartbeat.ChooseRandomDataServers(rs.ALL_SHARDS, nil)
 	if len(servers) != rs.ALL_SHARDS {
 		return nil, fmt.Errorf("cannot find enough dataServer")
 	}

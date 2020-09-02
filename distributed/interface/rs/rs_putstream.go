@@ -15,7 +15,6 @@ func NewRSPutStream(dataServers []string, hash string, size int64) (*RSPutStream
 		return nil, fmt.Errorf("dataServer number mismatch")
 	}
 
-
 	perShared := (size + DATA_SHARDS - 1) / DATA_SHARDS
 	writers := make([]io.Writer, ALL_SHARDS)
 	var e error

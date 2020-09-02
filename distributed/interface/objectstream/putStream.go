@@ -32,6 +32,7 @@ func NewTempPutStream(server, hash string, size int64) (*TempPutStream, error) {
 
 // 以uuid访问数据节点的临时文件
 func (w *TempPutStream) Write(p []byte) (n int, err error) {
+	// todo 待优化， 每次Write就进行一次http连接。 如果大文件，分批次就会消耗太多的资源在连接上
 	request, e := http.NewRequest(http.MethodPatch, "http://"+w.Server+"/temp/"+w.Uuid, strings.NewReader(string(p)))
 	if e != nil {
 		return 0, e

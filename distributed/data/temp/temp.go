@@ -2,6 +2,7 @@ package temp
 
 import (
 	"encoding/json"
+	"github.com/GuoYuefei/DOStorage1/distributed/config"
 	"github.com/GuoYuefei/DOStorage1/distributed/data/locate"
 	"github.com/GuoYuefei/DOStorage1/distributed/utils"
 	"github.com/google/uuid"
@@ -13,9 +14,8 @@ import (
 	"path"
 	"strconv"
 	"strings"
+	"time"
 )
-
-var tempfd = locate.TempRoot
 
 type tempInfo struct {
 	Uuid string
@@ -35,7 +35,7 @@ func (t *tempInfo) id() int {
 }
 
 func (t *tempInfo) writeToFile() error {
-	f, e := os.Create(path.Join(tempfd, t.Uuid))
+	f, e := os.Create(path.Join(config.TempRoot, t.Uuid))
 	if e != nil {
 		return e
 	}
@@ -78,7 +78,7 @@ func post(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	_, e = os.Create(path.Join(tempfd, t.Uuid+".dat"))
+	_, e = os.Create(path.Join(config.TempRoot, t.Uuid+".dat"))
 	if e != nil {
 		utils.Log.Println(utils.Err, e)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -95,10 +95,10 @@ func patch(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	infoFile := path.Join(tempfd, uu)
+	infoFile := path.Join(config.TempRoot, uu)
 	datFile := infoFile+".dat"
-	//f, e := os.OpenFile(datFile, os.O_WRONLY|os.O_CREATE, 0)
-	f, e := os.Create(datFile)
+	f, e := os.OpenFile(datFile, os.O_WRONLY|os.O_APPEND, 0)
+	//f, e := os.Create(datFile)
 	if e != nil {
 		utils.Log.Println(utils.Err, e)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -134,7 +134,7 @@ func put(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	infoFile := path.Join(tempfd, uu)
+	infoFile := path.Join(config.TempRoot, uu)
 	datFile := infoFile+".dat"
 	f, e := os.OpenFile(datFile, os.O_WRONLY|os.O_APPEND, 0)
 	if e != nil {
@@ -158,18 +158,19 @@ func put(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	commitTempObject(datFile, tempinfo)
+	w.WriteHeader(http.StatusAccepted)
 }
 
-func delete(w http.ResponseWriter, r *http.Request) {
+func delete(_ http.ResponseWriter, r *http.Request) {
 	uu := strings.Split(r.URL.EscapedPath(), "/")[2]
-	infoFile := path.Join(tempfd, uu)
+	infoFile := path.Join(config.TempRoot, uu)
 	datFile := infoFile + ".dat"
 	os.Remove(infoFile)
 	os.Remove(datFile)
 }
 
 func readFromFile(uu string) (*tempInfo, error) {
-	f, e := os.Open(path.Join(tempfd, uu))
+	f, e := os.Open(path.Join(config.TempRoot, uu))
 	if e != nil {
 		return nil, e
 	}
@@ -180,12 +181,28 @@ func readFromFile(uu string) (*tempInfo, error) {
 	return &info, nil
 }
 
-
 // 最后的名字定位成 <hash>.X.<hash of shard X>
+// todo 错误处理
 func commitTempObject(datFile string, info *tempInfo) {
-	f, _ := os.Open(datFile)
+	f, e := os.Open(datFile)
+	if e != nil {
+		utils.Log.Println(utils.Exception, e)
+	}
 	d := url.PathEscape(utils.CalculateHash(f))
-	f.Close()
-	os.Rename(datFile, path.Join(locate.ObjectRoot, info.Name+"."+d))
+	e = f.Close()
+	if e != nil {
+		time.Sleep(50*time.Millisecond)
+		f.Close()
+	}
+	// 最多花费1秒
+	for i := 10; i > 0; i-- {
+		e = os.Rename(datFile, path.Join(config.ObjectRoot, info.Name+"."+d))
+		if e != nil {
+			time.Sleep(100*time.Millisecond)
+		} else {
+			break
+		}
+	}
+
 	locate.Add(info.hash(), info.id())
 }

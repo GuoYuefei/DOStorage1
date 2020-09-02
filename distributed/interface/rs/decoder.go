@@ -1,6 +1,7 @@
 package rs
 
 import (
+	"github.com/GuoYuefei/DOStorage1/distributed/utils"
 	"github.com/klauspost/reedsolomon"
 	"io"
 )
@@ -66,6 +67,9 @@ func (d *decoder) getData() error {
 			}
 		}
 	}
+	if len(repairIds) != 0 {
+		utils.Log.Println(utils.Debug, "repairIds: ", repairIds)
+	}
 	// 修复数据
 	e := d.enc.Reconstruct(shards)
 	if e != nil {
@@ -80,7 +84,7 @@ func (d *decoder) getData() error {
 	for i := 0; i < DATA_SHARDS; i++ {
 		shardSize := int64(len(shards[i]))
 		if d.total+shardSize > d.size {
-			shardSize = d.total - d.size
+			shardSize -= d.total + shardSize - d.size
 		}
 		d.cache = append(d.cache, shards[i][:shardSize]...)
 		d.cacheSize += int(shardSize)

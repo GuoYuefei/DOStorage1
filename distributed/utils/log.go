@@ -11,8 +11,8 @@ const (
 	Exception
 	Err
 	Warning
-	Record
 	Info
+	Record
 	Debug
 )
 

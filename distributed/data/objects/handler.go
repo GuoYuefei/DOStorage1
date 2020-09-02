@@ -1,10 +1,12 @@
 package objects
 
 import (
+	"github.com/GuoYuefei/DOStorage1/distributed/config"
 	"github.com/GuoYuefei/DOStorage1/distributed/data/locate"
 	"github.com/GuoYuefei/DOStorage1/distributed/utils"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"path"
 	"path/filepath"
@@ -37,7 +39,7 @@ func get(w http.ResponseWriter, r *http.Request) {
 }
 
 func getFile(name string) string {
-	paths := path.Join(locate.ObjectRoot, name+".*")
+	paths := path.Join(config.ObjectRoot, name+".*")
 	files, _ := filepath.Glob(paths)
 	if len(files) != 1 {
 		return ""
@@ -47,7 +49,7 @@ func getFile(name string) string {
 	if e == nil {
 		defer f.Close()
 	}
-	d := utils.CalculateHash(f)
+	d := url.PathEscape(utils.CalculateHash(f))
 	hash := strings.Split(file, ".")[2]
 	if d != hash {
 		// 验证文件不成功
