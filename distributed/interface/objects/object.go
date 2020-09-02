@@ -5,7 +5,7 @@ import (
 	"github.com/GuoYuefei/DOStorage1/distributed/es"
 	"github.com/GuoYuefei/DOStorage1/distributed/interface/heartbeat"
 	"github.com/GuoYuefei/DOStorage1/distributed/interface/locate"
-	"github.com/GuoYuefei/DOStorage1/distributed/interface/objectstream"
+	"github.com/GuoYuefei/DOStorage1/distributed/interface/rs"
 	"github.com/GuoYuefei/DOStorage1/distributed/interface/util"
 	"github.com/GuoYuefei/DOStorage1/distributed/utils"
 	"io"
@@ -104,32 +104,45 @@ func get(w http.ResponseWriter, r *http.Request) {
 	meta, e := es.GetMetadata(name, version)
 	utils.Log.Println(utils.Debug, "get metadata is ", meta)
 	if e != nil {
-		log.Println(e)
+		utils.Log.Println(utils.Record, e)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	if meta.Hash == "" {
-		utils.Log.Println(utils.Info, "meta's hash is none")
+		utils.Log.Println(utils.Record, "meta's hash is none")
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 	object := url.PathEscape(meta.Hash)
-	stream, err := getStream(object)
+	stream, err := GetStream(object, meta.Size)
 	if err != nil {
-		utils.Log.Println(utils.Info, err)
+		utils.Log.Println(utils.Record, err)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
-	io.Copy(w, stream)
+	_, e = io.Copy(w, stream)
+	if e != nil {
+		utils.Log.Println(utils.Record, e)
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	// 最后commit修复的数据片， 转正
+	stream.Close()
 }
 
-func getStream(object string) (io.Reader, error) {
-	server := locate.Locate(object)
-	if server == "" {
-		return nil, fmt.Errorf("object %s locate fail", object)
+
+func GetStream(hash string, size int64) (*rs.RSGetStream, error) {
+	locateInfo := locate.Locate(hash)
+	if len(locateInfo) < rs.DATA_SHARDS {
+		return nil, fmt.Errorf("object %s locate fail, result %v", hash, locateInfo)
 	}
-	return objectstream.NewGetStream(server, object)
+	dataServers := make([]string, 0)
+	if len(locateInfo) != rs.ALL_SHARDS {
+		// 如果不是全部定位成功，那么需要选取修复用的server
+		dataServers = heartbeat.ChooseRandomDataServers(rs.ALL_SHARDS-len(locateInfo), locateInfo)
+	}
+	return rs.NewRSGetStream(locateInfo, dataServers, hash, size)
 }
 
 // 接收的 hash 是已经 url.pathescape 过得
@@ -157,11 +170,11 @@ func storeObject(r io.Reader, hash string, size int64) (int, error) {
 	return http.StatusOK, nil
 }
 
-func putStream(hash string, size int64) (*objectstream.TempPutStream, error) {
-	server := heartbeat.ChooseRandomDataServer()
-	if server == "" {
-		return nil, fmt.Errorf("cannot find any dataServer")
+func putStream(hash string, size int64) (*rs.RSPutStream, error) {
+	servers := heartbeat.ChooseRandomDataServers(rs.ALL_SHARDS, nil)
+	if len(servers) != rs.ALL_SHARDS {
+		return nil, fmt.Errorf("cannot find enough dataServer")
 	}
-	utils.Log.Println(utils.Debug, "select data server ", server)
-	return objectstream.NewTempPutStream(server, hash, size)
+
+	return rs.NewRSPutStream(servers, hash, size)
 }

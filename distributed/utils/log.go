@@ -11,8 +11,8 @@ const (
 	Exception
 	Err
 	Warning
-	Record
 	Info
+	Record
 	Debug
 )
 
@@ -107,12 +107,12 @@ func prefix(p int) string {
 
 func FailOnError(err error, message string) {
 	if err != nil {
-		Log.Println(Err, message)
+		Log.Println(Err, err, message)
 	}
 }
 
 func PanicOnError(err error, message string) {
 	if err != nil {
-		Log.Println(Exception, message)
+		Log.Println(Exception, err, message)
 	}
 }

@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"github.com/GuoYuefei/DOStorage1/distributed/config"
 	"github.com/GuoYuefei/DOStorage1/distributed/es"
+	"github.com/GuoYuefei/DOStorage1/distributed/interface/rs"
 	"github.com/GuoYuefei/DOStorage1/distributed/rabbitmq"
+	"github.com/GuoYuefei/DOStorage1/distributed/types"
 	"github.com/GuoYuefei/DOStorage1/distributed/utils"
 	"log"
 	"net/http"
@@ -58,19 +60,27 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(b)
 }
 
-func Locate(hash string) string {
+func Locate(name string) (locateInfo map[int]string) {
 	q := rabbitmq.New(config.Pub.RABBITMQ_SERVER)
-	q.Publish("dataServers", hash)
+	q.Publish("dataServers", name)
 	c := q.Consume()
 	go func() {
 		time.Sleep(1*time.Second)
 		q.Close()
 	}()
-	msg := <-c
-	s, _ := strconv.Unquote(string(msg.Body))
-	return s
+	locateInfo = make(map[int]string)
+	for i := 0; i < rs.ALL_SHARDS; i++ {
+		msg := <-c
+		if len(msg.Body) == 0 {
+			return
+		}
+		var info types.LocateMessage
+		json.Unmarshal(msg.Body, &info)
+		locateInfo[info.Id] = info.Addr
+	}
+	return
 }
 
 func Exist(name string) bool {
-	return Locate(name) != ""
+	return len(Locate(name)) >= rs.DATA_SHARDS
 }

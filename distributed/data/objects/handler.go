@@ -1,6 +1,7 @@
 package objects
 
 import (
+	"github.com/GuoYuefei/DOStorage1/distributed/config"
 	"github.com/GuoYuefei/DOStorage1/distributed/data/locate"
 	"github.com/GuoYuefei/DOStorage1/distributed/utils"
 	"io"
@@ -8,6 +9,7 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 )
 
@@ -36,14 +38,19 @@ func get(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func getFile(hash string) string {
-	file := path.Join(locate.ObjectRoot, hash)
-	f, e := os.Open(file)
-	if e != nil {
+func getFile(name string) string {
+	paths := path.Join(config.ObjectRoot, name+".*")
+	files, _ := filepath.Glob(paths)
+	if len(files) != 1 {
 		return ""
 	}
+	file := files[0]
+	f, e := os.Open(file)
+	if e == nil {
+		defer f.Close()
+	}
 	d := url.PathEscape(utils.CalculateHash(f))
-	f.Close()
+	hash := strings.Split(file, ".")[2]
 	if d != hash {
 		// 验证文件不成功
 		utils.Log.Printf(utils.Err, "object hash mismatch, remove", file)
