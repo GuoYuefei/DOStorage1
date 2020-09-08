@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 )
 
@@ -32,7 +31,7 @@ func declare(ch *amqp.Channel, name string)  {
 }
 
 func readyForRabbitMQ() {
-	conn, _ := amqp.Dial(os.Getenv("RABBITMQ_SERVER"))
+	conn, _ := amqp.Dial(config.Pub.RABBITMQ_SERVER)
 	defer conn.Close()
 	ch, _ := conn.Channel()
 	defer ch.Close()

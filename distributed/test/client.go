@@ -21,7 +21,7 @@ func Put(file string, ok bool) error {
 	return putIncorrect(file)
 }
 
-func Get(name string) error {
+func Get(name string, out io.Writer) error {
 	resp, err := http.Get(apihost + name)
 	if err != nil {
 		return err
@@ -29,7 +29,10 @@ func Get(name string) error {
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("response error, %s\n", resp.Status)
 	}
-	io.Copy(os.Stdout, resp.Body)
+	if out == nil {
+		out = os.Stdout
+	}
+	io.Copy(out, resp.Body)
 	fmt.Println()
 	return nil
 }

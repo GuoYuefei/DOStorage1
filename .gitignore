@@ -1,5 +1,5 @@
 /.idea
-/datatmp
-/tmp
-/data*
+data*
 go.sum
+build/
+!distributed/data

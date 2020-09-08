@@ -68,7 +68,9 @@ LISTEN_ADDRESS=:12345 STORAGE_ROOT=./tmp RABBITMQ_SERVER="amqp://test:test@local
 
 The configuration content mentioned above needs to be configured on each node machine as needed.
 
-Then you can find the corresponding binary files data.exe and interface.exe in the release. Run the two programs on different node machines through the command line.
+Then you can find the corresponding binary files data.exe and interface.exe in the release. Run the two programs on different node machines through the command line. 
+
+**After this project version v0.2,  six data server nodes must be equipped, otherwise the service will be unavailable.**
 
 You can compile it yourself with the source code.
 
