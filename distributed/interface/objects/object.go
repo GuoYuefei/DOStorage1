@@ -12,6 +12,11 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if m == http.MethodPut {
+		post(w, r)
+		return
+	}
+
+	if m == http.MethodPut {
 		put(w, r)
 		return
 	}
