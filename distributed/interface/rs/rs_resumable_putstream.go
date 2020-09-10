@@ -56,7 +56,7 @@ func (s *RSResumablePutStream) CurrentSize() int64 {
 		utils.Log.Println(utils.Err, "RSResumablePutStream CurrentSize response is not OK, ")
 		return -1
 	}
-	size := util.GetOffsetFromHeader(r.Header) * DATA_SHARDS
+	size := util.GetSizeFromHeader(r.Header) * DATA_SHARDS
 	if size > s.Size {
 		size = s.Size
 	}

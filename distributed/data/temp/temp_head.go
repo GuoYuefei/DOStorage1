@@ -26,5 +26,6 @@ func head(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+	utils.Log.Printf(utils.Debug, "info.size is %v\n", info.Size())
 	w.Header().Set("content-length", fmt.Sprintf("%d", info.Size()))
 }

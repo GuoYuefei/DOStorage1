@@ -21,5 +21,6 @@ func head(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
+	utils.Log.Printf(utils.Debug, "get current len is %v\n", current)
 	w.Header().Set("content-length", fmt.Sprintf("%d", current))
 }

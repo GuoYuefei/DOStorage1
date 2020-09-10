@@ -126,3 +126,33 @@ func TestLocat(t *testing.T) {
 		})
 	}
 }
+
+func Test_putBigFile(t *testing.T) {
+	type args struct {
+		file string
+		size int64
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+		{"big put test", args{
+			file: miya,
+			size: 1<<18,
+		}, false},
+		//{"big put test1", args{
+		//	file: somefile,
+		//	size: 4,
+		//}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := putBigFile(tt.args.file, tt.args.size); (err != nil) != tt.wantErr {
+				t.Errorf("putBigFile() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+

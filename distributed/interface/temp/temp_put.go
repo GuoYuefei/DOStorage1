@@ -46,6 +46,7 @@ func put(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusForbidden)
 			return
 		}
+		utils.Log.Printf(utils.Debug, "temp.put size: %v \t current %v \t stream.size %v\n", n, current, stream.Size)
 		// 上传出现问题， 最后一次没达到block_size 大小，也不是最后一块， 直接丢弃
 		if n != rs.BLOCK_SIZE && current != stream.Size {
 			return
@@ -55,6 +56,12 @@ func put(w http.ResponseWriter, r *http.Request) {
 			// 全部写入后的操作
 			stream.Flush()
 			getStream, e := rs.NewRSResumableGetStream(stream.Servers, stream.Uuids, stream.Size)
+			if e != nil {
+				stream.Commit(false)
+				utils.Log.Println(utils.Err, e)
+				w.WriteHeader(http.StatusForbidden)
+				return
+			}
 			hash := utils.CalculateHash(getStream)
 			if hash != stream.Hash {
 				stream.Commit(false)
@@ -63,10 +70,12 @@ func put(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			if locate.Exist(url.PathEscape(hash)) {
+				utils.Log.Println(utils.Debug, "object is exist before")
 				stream.Commit(false)
 			} else {
 				stream.Commit(true)
 			}
+			utils.Log.Println(utils.Debug, "suss upload!!!")
 			e = es.AddVersion(stream.Name, stream.Hash, stream.Size)
 			if e != nil {
 				utils.Log.Println(utils.Err, e)
