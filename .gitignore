@@ -3,3 +3,5 @@ data*
 go.sum
 build/
 !distributed/data
+willchange
+token_location.tmp

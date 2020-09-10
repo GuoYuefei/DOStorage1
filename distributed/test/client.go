@@ -165,6 +165,7 @@ func putIncorrect(file string) error {
 }
 
 // size 第一次上传的大小
+// 断点续传测试函数
 func putBigFile(file string, size int64) error {
 	utils.Log.Printf(utils.Info, "open file, %s\n", file)
 	f, e := os.Open(filepath + file)
@@ -268,4 +269,36 @@ func putBigFile(file string, size int64) error {
 	return nil
 }
 
+func getBigFile(file string, size int64) error {
+	r, _ := http.NewRequest(http.MethodGet, apihost+file, nil)
+	r.Header.Set("Range", fmt.Sprintf("bytes=%v-", size))
+	client := http.Client{}
+	response, err := client.Do(r)
+	if err != nil {
+		return err
+	}
+	if response.StatusCode < 200 || response.StatusCode >= 300 {
+		return fmt.Errorf("size get %s", response.Status)
+	}
+	ran := response.Header.Get("content-range")
+	fmt.Println(ran)
+	data_1, _ := os.Create("data_1")
+	defer data_1.Close()
+	io.Copy(data_1, response.Body)
 
+	// 第二次 获取全部数据
+	r.Header.Set("Range", "bytes=0-")
+	response, err = client.Do(r)
+	if err != nil {
+		return err
+	}
+	if response.StatusCode < 200 || response.StatusCode >= 300 {
+		return fmt.Errorf("all get %s", response.Status)
+	}
+	ran = response.Header.Get("content-range")
+	fmt.Println(ran)		// 应该是空的
+	data_all, _ := os.Create("data_all")
+	defer data_all.Close()
+	io.Copy(data_all, response.Body)
+	return nil
+}

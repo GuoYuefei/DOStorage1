@@ -140,7 +140,7 @@ func Test_putBigFile(t *testing.T) {
 		// TODO: Add test cases.
 		{"big put test", args{
 			file: miya,
-			size: 1<<18,
+			size: 1<<18+1234,
 		}, false},
 		//{"big put test1", args{
 		//	file: somefile,
@@ -156,3 +156,25 @@ func Test_putBigFile(t *testing.T) {
 	}
 }
 
+func Test_getBigFile(t *testing.T) {
+	type args struct {
+		file string
+		size int64
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{"big get test", args{
+			miya, 900000,
+		}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := getBigFile(tt.args.file, tt.args.size); (err != nil) != tt.wantErr {
+				t.Errorf("getBigFile() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
