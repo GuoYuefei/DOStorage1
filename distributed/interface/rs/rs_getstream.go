@@ -18,6 +18,30 @@ func (s *RSGetStream) Close() {
 	}
 }
 
+// return 1, 0 为正常
+func (s *RSGetStream) Seek(offset int64, whence int) (int64, error){
+	if whence != io.SeekCurrent {
+		// todo
+		return -1, fmt.Errorf("only support SeekCurrent")
+	}
+	if offset < 0 {
+		return -1, fmt.Errorf("only support forward seek")
+	}
+	for offset != 0 {
+		length := int64(BLOCK_SIZE)
+		if offset < length {
+			length = offset
+		}
+		buf := make([]byte, length)
+		_, err := io.ReadFull(s, buf)
+		if err != nil && err != io.EOF && err != io.ErrUnexpectedEOF {
+			return -1, err
+		}
+		offset -= length
+	}
+	return offset, nil
+}
+
 func NewRSGetStream(locateInfo map[int]string, dataServers []string, hash string, size int64) (*RSGetStream, error) {
 	if len(locateInfo) + len(dataServers) != ALL_SHARDS {
 		return nil, fmt.Errorf("dataServers number mismatch")

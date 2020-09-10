@@ -30,6 +30,10 @@ func NewGetStream(server, object string) (*GetStream, error) {
 	return newGetStream(util.GetObjectURL(server, object))
 }
 
+func NewTempGetStream(server, uuid string) (*GetStream, error) {
+	return newGetStream("http://" + server + "/temp/" + uuid)
+}
+
 
 
 

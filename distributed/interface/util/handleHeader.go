@@ -4,6 +4,7 @@ import (
 	"github.com/GuoYuefei/DOStorage1/distributed/utils"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 func GetHashFromHeader(h http.Header) string {
@@ -23,4 +24,18 @@ func GetSizeFromHeader(h http.Header) int64 {
 		utils.Log.Println(utils.Err, e)
 	}
 	return size
+}
+
+func GetOffsetFromHeader(h http.Header) int64 {
+	byteRange := h.Get("range")
+	if len(byteRange) < 7 {
+		return 0
+	}
+	if byteRange[:6] != "bytes=" {
+		return 0
+	}
+
+	bytePos := strings.Split(byteRange[6:], "-")
+	offset, _ := strconv.ParseInt(bytePos[0], 0, 64)
+	return offset
 }
