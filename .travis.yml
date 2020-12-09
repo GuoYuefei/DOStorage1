@@ -47,6 +47,7 @@ script:
   - cd ..
 
 after_script:
+  - cd distributed
   - bash script/stop_min.sh
 
 before_deploy:
