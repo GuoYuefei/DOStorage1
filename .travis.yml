@@ -23,6 +23,7 @@ addons:
     update: true
     packages:
       - rabbitmq-server
+  ssh_known_hosts: 119.29.5.95
 
 install:
   -
@@ -44,8 +45,22 @@ before_script:
 script:
   # 测试部分
   - bash script/test.sh
+  - cd ..
 
 after_script:
   - bash script/stop_min.sh
-  - cd ..
+
+before_deploy:
+  - openssl aes-256-cbc -K $encrypted_db2095f63ba3_key -iv $encrypted_db2095f63ba3_iv
+    -in deploy_rsa.enc -out deploy_rsa -d
+  - eval "$(ssh-agent -s)"
+  - chmod 600 deploy_rsa
+  - ssh-add deploy_rsa
+
+deploy:
+  provider: script
+  script: bash distributed/script/deploy.sh
+  skip_cleanup: true
+  on:
+    branch: deploy
 

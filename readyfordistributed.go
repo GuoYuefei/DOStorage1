@@ -9,6 +9,8 @@ import (
 	"strings"
 )
 
+// node bug 这里的config都是默认值，
+
 func main() {
 	//node rabbitmq 的前置准备， 声明两个exchange
 	readyForRabbitMQ()
