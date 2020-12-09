@@ -1,0 +1,42 @@
+language: go
+sudo: true
+
+go:
+  - 1.15.x
+  - 1.14.x
+  - master
+
+env:
+  - GO111MODULE=on GOPROXY=https://goproxy.io,direct
+
+services:
+  - rabbitmq
+  - elasticsearch
+
+before_install:
+
+addons:
+  apt:
+    update: true
+
+install:
+
+
+before_script:
+  - rabbitmqctl add_user test test
+  - rabbitmqctl set_permissions -p / test ".*" ".*" ".*"
+  ## 编译
+  - cd distributed && bash script/build.sh
+  # ES 启动速度比较慢
+  - sleep 10
+  ## 运行多个实例
+  - bash script/start_min.sh
+
+script:
+  # 测试部分
+  - bash script/test.sh
+
+after_script:
+  - bash script/stop_min.sh
+  - cd ..
+
