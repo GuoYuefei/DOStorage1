@@ -26,12 +26,15 @@ install:
 before_script:
   - sudo rabbitmqctl add_user test test
   - sudo rabbitmqctl set_permissions -p / test ".*" ".*" ".*"
-  ## 编译
-  - cd distributed && bash script/build.sh
   # ES 启动速度比较慢
   - sleep 10
+  # 对rabbitmq和es做准备工作
+  - go run readyfordistributed.go
+  ## 编译
+  - cd distributed && bash script/build.sh
   ## 运行多个实例
   - bash script/start_min.sh
+  - sleep 3
 
 script:
   # 测试部分
