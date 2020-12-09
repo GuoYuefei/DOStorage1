@@ -13,7 +13,7 @@ services:
   - elasticsearch
 
 before_install:
-  - wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.10.0-amd64.deb -o elasticsearch.deb
+  - curl https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.10.0-amd64.deb -o elasticsearch.deb
   - sudo dpkg -i --force-confnew elasticsearch.deb
   - sudo chown -R elasticsearch:elasticsearch /etc/default/elasticsearch
   - sudo systemctl restart elasticsearch
