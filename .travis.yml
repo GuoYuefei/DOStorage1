@@ -2,7 +2,6 @@ language: go
 sudo: true
 
 go:
-  - 1.15.x
   - 1.14.x
   - master
 
@@ -14,23 +13,33 @@ services:
   - elasticsearch
 
 before_install:
+  - curl https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.10.0-amd64.deb -o elasticsearch.deb
+  - sudo dpkg -i --force-confnew elasticsearch.deb
+  - sudo chown -R elasticsearch:elasticsearch /etc/default/elasticsearch
+  - sudo systemctl restart elasticsearch
 
 addons:
   apt:
     update: true
+    packages:
+      - rabbitmq-server
 
 install:
+  -
 
 
 before_script:
-  - rabbitmqctl add_user test test
-  - rabbitmqctl set_permissions -p / test ".*" ".*" ".*"
+  - sudo rabbitmqctl add_user test test
+  - sudo rabbitmqctl set_permissions -p / test ".*" ".*" ".*"
+  # ES 启动速度比较慢
+  - sleep 8
+  # 对rabbitmq和es做准备工作
+  - go run readyfordistributed.go
   ## 编译
   - cd distributed && bash script/build.sh
-  # ES 启动速度比较慢
-  - sleep 10
   ## 运行多个实例
   - bash script/start_min.sh
+  - sleep 2
 
 script:
   # 测试部分
