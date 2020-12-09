@@ -17,6 +17,8 @@ before_install:
 addons:
   apt:
     update: true
+    packages:
+      - rabbitmq-server
 
 install:
 
