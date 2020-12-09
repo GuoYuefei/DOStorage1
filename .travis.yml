@@ -60,7 +60,7 @@ before_deploy:
 deploy:
   provider: script
   script: bash distributed/script/deploy.sh
-  skip_cleanup: true
+  # skip_cleanup: true
   on:
     branch: deploy
 
