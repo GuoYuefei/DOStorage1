@@ -13,28 +13,32 @@ services:
   - elasticsearch
 
 before_install:
+  - echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-7.x.list
 
 addons:
   apt:
     update: true
     packages:
       - rabbitmq-server
+      - apt-transport-https
 
 install:
+  - sudo apt-get install elasticsearch
 
 
 before_script:
+  - sudo systemctl restart elasticsearch
   - sudo rabbitmqctl add_user test test
   - sudo rabbitmqctl set_permissions -p / test ".*" ".*" ".*"
   # ES 启动速度比较慢
-  - sleep 10
+  - sleep 8
   # 对rabbitmq和es做准备工作
   - go run readyfordistributed.go
   ## 编译
   - cd distributed && bash script/build.sh
   ## 运行多个实例
   - bash script/start_min.sh
-  - sleep 3
+  - sleep 2
 
 script:
   # 测试部分
