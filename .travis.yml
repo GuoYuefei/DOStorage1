@@ -2,7 +2,6 @@ language: go
 sudo: true
 
 go:
-  - 1.15.x
   - 1.14.x
   - master
 
@@ -23,8 +22,8 @@ install:
 
 
 before_script:
-  - rabbitmqctl add_user test test
-  - rabbitmqctl set_permissions -p / test ".*" ".*" ".*"
+  - sudo rabbitmqctl add_user test test
+  - sudo rabbitmqctl set_permissions -p / test ".*" ".*" ".*"
   ## 编译
   - cd distributed && bash script/build.sh
   # ES 启动速度比较慢
