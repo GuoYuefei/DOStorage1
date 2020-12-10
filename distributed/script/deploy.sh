@@ -14,10 +14,10 @@ scp -r ./** ubuntu@119.29.5.95:~/DOStorage1/
 ###
 ssh ubuntu@119.29.5.95 << eeof
 
-cd DOStorage1/distributed
-rm -rf build && echo "delete build folder, then will build"
+cd DOStorage1/distributed && pwd
+rm -rf build && echo -e "\033[33m Delete build folder, then will build \033[0m"
 bash script/build.sh
-echo "如果有，则关闭之前运行的程序"
+echo -e "\033[34m 如果有，则关闭之前运行的程序 \033[0m"
 cd ~/dos/ && bash stop_min.sh
 cd -
 cp -r build ~/dos/
@@ -26,7 +26,7 @@ cd ~
 rm -rf DOStorage1
 cd dos
 
-echo "开启程序"
+echo -e "\033[34m 开启程序 \033[0m"
 bash start_min.sh
 
 exit

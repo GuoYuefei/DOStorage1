@@ -35,17 +35,23 @@ before_script:
   - sleep 8
   # 对rabbitmq和es做准备工作
   - go run readyfordistributed.go
+
+
+script:
   ## 编译
   - cd distributed && bash script/build.sh
   ## 运行多个实例
   - bash script/start_min.sh
   - sleep 2
-
-script:
   # 测试部分
   - bash script/test.sh
+
+
+after_success:
   - cd ..
-  - ls
+
+after_failure:
+  - cd ..
 
 after_script:
   - cd distributed
