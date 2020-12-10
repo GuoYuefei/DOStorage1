@@ -23,7 +23,7 @@ cd -
 cp -r build ~/dos/
 cp script/start_min.sh script/stop_min.sh ~/dos/
 cd ~
-# rm -rf DOStorage1
+rm -rf DOStorage1
 cd dos
 
 echo "开启程序"
