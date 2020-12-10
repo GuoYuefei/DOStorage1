@@ -3,8 +3,8 @@
 # 本脚本在项目distributed目录下执行
 # 需要go环境， go版本在go.mod中定义
 
-go build -o ./build/interserver ./interface/main.go
-go build -o ./build/dataserver ./data/main.go
+go build -o ./build/interserver ./interface/main.go && echo "compile interface server successful !"
+go build -o ./build/dataserver ./data/main.go && echo "compile data server successful !"
 
 if ! [ -d ./build/config ]
 then

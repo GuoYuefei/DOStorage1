@@ -45,6 +45,7 @@ script:
   # 测试部分
   - bash script/test.sh
   - cd ..
+  - ls
 
 after_script:
   - cd distributed
