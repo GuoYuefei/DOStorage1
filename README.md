@@ -1,4 +1,5 @@
 # Distributed Object Storage
+[![Build Status](https://travis-ci.com/GuoYuefei/DOStorage1.svg?branch=master)](https://travis-ci.com/GuoYuefei/DOStorage1) [![GitHub license](https://img.shields.io/github/license/GuoYuefei/DOStorage1)](https://github.com/GuoYuefei/DOStorage1/blob/master/LICENSE) ![language](https://img.shields.io/github/languages/top/GuoYuefei/DOStorage1) ![last](https://img.shields.io/github/last-commit/GuoYuefei/DOStorage1.svg)
 
 - [Getting Started](#getting-started)
 	+ [Prepare Components](#prepare-components)

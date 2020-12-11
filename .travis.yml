@@ -1,6 +1,18 @@
 language: go
 sudo: true
 
+### blacklist
+# branches:
+#  except:
+#    - legacy
+#    - experimental
+
+### whitelist
+branches:
+  only:
+    - master
+    - deploy
+
 go:
   - master
 
